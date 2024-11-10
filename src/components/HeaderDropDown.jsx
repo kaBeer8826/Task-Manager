@@ -6,13 +6,13 @@ import lightIcon from "../assets/icon-light-theme.svg";
 import { Switch } from "@headlessui/react";
 import useDarkMode from "../Hooks/useDarkMode";
 import PropTypes from 'prop-types';
-
+import boardSlice from "../redux/boardSlice";
 function HeaderDropDown({ setOpenDropdown, setBoardModalOpen }) {
   HeaderDropDown.propTypes = {
     setOpenDropdown: PropTypes.func.isRequired,
     setBoardModalOpen: PropTypes.func.isRequired,
   };
-
+  const dispatch = useDispatch()
   const boards = useSelector((state) => state.boards);
   const [colorTheme, setTheme] = useDarkMode();
   const [darkSide, setDarkSide] = useState(colorTheme === "light");
@@ -45,6 +45,9 @@ function HeaderDropDown({ setOpenDropdown, setBoardModalOpen }) {
               board.isActive && " bg-[#635fc7] rounded-r-full text-white mr-8 "
             } `}
             key={index}
+            onClick={() => {
+              dispatch(boardSlice.actions.setBoardActive({ index }));
+            }}
           >
             <img src={boardIcon} className="  filter-white  h-4 " />{" "}
             <p className=" text-lg font-bold dark:text-black ">{board.name}</p>

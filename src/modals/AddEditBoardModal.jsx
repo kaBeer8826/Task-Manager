@@ -1,30 +1,66 @@
-import { collapseClasses, useScrollTrigger } from "@mui/material";
-import React, { useState } from "react";
-import { v4 as uuidv4, validate } from "uuid";
+
+import { useState } from "react";
+import { v4 as uuidv4} from "uuid";
 import crossIcon from "../assets/icon-cross.svg";
+import { useDispatch, useSelector } from "react-redux";
+import boardSlice from "../redux/boardSlice";
+import toast, { Toaster } from 'react-hot-toast';
 function AddEditBoardModal({ setBoardModalOpen, type }) {
   const [name, setName] = useState("");
+  const [isFirstLoad, setIsFirstLoad] = useState(true);
+  const dispatch = useDispatch();
   const [newColumns, setNewColumns] = useState([
-    { name: "Todo", task: [], id: uuidv4() },
+    { name: "Todo", tasks: [], id: uuidv4() },
     { name: "Doing", tasks: [], id: uuidv4() },
   ]);
   const [isValid, setIsValid] = useState(true);
   const onDelete = (id) => {
     setNewColumns((prevState) => prevState.filter((cl) => cl.id !== id));
   };
-
+  
+  const board = useSelector((state)=>state.boards).find(
+    (board) => board.isActive
+  )
+  if(type === 'edit' && isFirstLoad ){
+    setNewColumns(
+      board.columns.map((col)=>{
+        return{...col , id:uuidv4()}
+      })
+    )
+    setName(board.name)
+    setIsFirstLoad(false)
+  }
   const validate = () =>{
     setIsValid(false);
     if(!name.trim()){
+      toast('Enter Baord Name')
       return false
     }
     for(let i=0 ;  i <newColumns.length;i++){
       if(!newColumns[i].name.trim()){
+        toast('Enter column name')
         return false
       }
     }
     setIsValid(true)
     return true
+  }
+  const onChange = (id,newValue)=>{
+    setNewColumns((prevState)=>{
+      const newState = [...prevState]
+      const column = newState.find((col) => col.id === id)
+      column.name = newValue
+      return newState
+    })
+  }
+
+  const onSubmit = (type) =>{
+    setBoardModalOpen(false)
+    if(type === "add"){
+      dispatch(boardSlice.actions.addBoard({name,newColumns}))
+    }else {
+      dispatch(boardSlice.actions.editBoard({name,newColumns}))
+    }
   }
   return (
     <div
@@ -65,7 +101,7 @@ function AddEditBoardModal({ setBoardModalOpen, type }) {
               <input
                 className=" flex-grow px-4 py-2 rounded-md text-sm border-[0.5px] border-gray-600 focus:outline-[#635fc7] outline-[1px] dark:text-black"
                 onChange={(e) => {
-                  onchange(column.id, e.target.value);
+                  onChange(column.id, e.target.value); 
                 }}
                 type="text"
                 value={column.name}
@@ -98,10 +134,11 @@ function AddEditBoardModal({ setBoardModalOpen, type }) {
             <button 
               onClick={() =>{
                 const isValid = validate();
-                if(isValid === true) onsubmit(type)
+                if(isValid === true) onSubmit(type)
               }}
             className=" w-full items-center hover:opacity-70 dark:text-white dark:bg-[#635fc7] mt-8 relative  text-white bg-[#635fc7] py-2 rounded-full">
               {type === "add" ? "Create New Board" : "Save Changes"}
+              <Toaster />
             </button>
           </div>
         </div>
