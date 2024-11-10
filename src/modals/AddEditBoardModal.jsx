@@ -64,7 +64,7 @@ function AddEditBoardModal({ setBoardModalOpen, type }) {
   }
   return (
     <div
-      className="  fixed right-0 top-0 px-2 py-4 overflow-scroll scrollbar-hide  z-50 left-0 bottom-0 justify-center items-center flex dropdown bg-yellow-100"
+      className="  fixed right-0 top-0 px-2 py-4 overflow-scroll scrollbar-hide  z-50 left-0 bottom-0 justify-center items-center flex dropdow"
       onClick={(e) => {
         if (e.target !== e.currentTarget) {
           return;

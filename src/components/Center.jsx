@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import Sidebar from "./Sidebar";
 import Column from "./Column";
+import EmptyBoard from "./EmptyBoard";
+import AddEditBoardModal from "../modals/AddEditBoardModal";
 
 function Center({ boardModalOpen, setBoardModalOpen }) {
   const [windowSize, setWindowSize] = useState([
@@ -27,16 +29,41 @@ function Center({ boardModalOpen, setBoardModalOpen }) {
     <div
       className={
         windowSize[0] >= 768 && isSideBarOpen
-          ? " bg-[#f4f7fd]  scrollbar-hide h-screen flex dark:bg-[#20212c]  overflow-x-scroll gap-6  ml-[261px]"
-          : "bg-[#f4f7fd]  scrollbar-hide h-screen flex    dark:bg-[#20212c] overflow-x-scroll gap-6 "
+          ? " bg-[#f4f7fd]   h-screen flex dark:bg-[#20212c]  overflow-x-scroll gap-6  ml-[261px]"
+          : "bg-[#f4f7fd]   h-screen flex    dark:bg-[#20212c] overflow-x-scroll gap-6 "
       }
     >
-      {windowSize[0] >= 768 && <Sidebar />}
+      {windowSize[0] >= 768 && (
+        <Sidebar
+          setBoardModalOpen={setBoardModalOpen}
+          BoardModalOpen={boardModalOpen}
+          isSideBarOpen={isSideBarOpen}
+          setIsSideBarOpen={setIsSideBarOpen}
+        />
+      )}
       {/* column section */}
-
-      {columns.map((col, index) => (
-        <Column key={index} colIndex={index} />
-      ))}
+      {columns.length > 0 ? (
+        <>
+          {columns.map((col, index) => (
+            <Column key={index} colIndex={index} />
+          ))}
+          <div
+            onClick={() => {
+              setBoardModalOpen(true);
+            }}
+            className=" h-screen dark:bg-[#2b2c3740] flex justify-center items-center font-bold text-2xl hover:text-[#635FC7] transition duration-300 cursor-pointer bg-[#E9EFFA] scrollbar-hide mb-2   mx-5 pt-[90px] min-w-[280px] text-[#828FA3] mt-[135px] rounded-lg "
+          >
+            + New Column
+          </div>
+        </>
+      ) : (
+        <>
+          <EmptyBoard type="edit" />
+        </>
+      )}
+      {boardModalOpen && (
+        <AddEditBoardModal type="edit" setBoardModalOpen={setBoardModalOpen} />
+      )}
     </div>
   );
 }

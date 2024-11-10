@@ -31,7 +31,7 @@ function AddEditTaskModal({
   const task = col ? col.tasks.find((task, index) => index === taskIndex) : [];
   const [status, setStatus] = useState(columns[prevColIndex].name);
   const [newColIndex, setNewColIndex] = useState(prevColIndex);
-
+  const [isFirstLoad, setIsFirstLoad] = useState(true);
   const onChangeSubtasks = (id, newValue) => {
     setSubtasks((prevState) => {
       const newState = [...prevState];
@@ -88,6 +88,17 @@ function AddEditTaskModal({
       );
     }
   };
+
+  if (type === "edit" && isFirstLoad) {
+    setSubtasks(
+      task.subtasks.map((subtask) => {
+        return { ...subtask, id: uuidv4() };
+      })
+    );
+    setTitle(task.title);
+    setDescription(task.description);
+    setIsFirstLoad(false);
+  }
   return (
     <div
       className={
@@ -119,7 +130,7 @@ function AddEditTaskModal({
             onChange={(e) => setTitle(e.target.value)}
             id="task-name-input"
             type="text"
-            placeholder=" e.g Take coffee break"
+            placeholder={type === "edit" ? title : "eg- making coffee"}
             className="bg-transparent px-4 py-2 outline-none focus:border-0 rounded-md text-sm border-[0.5px] border-gray-600 focus:outline-[#635fc7] outline-1  ring-0 "
           />
         </div>
@@ -201,7 +212,7 @@ function AddEditTaskModal({
             }}
             className=" w-full items-center text-white bg-[#635fc7] py-2 rounded-full "
           >
-             {type === "edit" ? " save edit" : "Create task"}
+            {type === "edit" ? " save edit" : "Create task"}
           </button>
         </div>
       </div>

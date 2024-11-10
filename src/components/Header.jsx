@@ -7,7 +7,7 @@ import elipis from "../assets/icon-vertical-ellipsis.svg";
 import HeaderDropDown from "../components/HeaderDropDown";
 import AddEditBoardModal from "../modals/AddEditBoardModal";
 import { useDispatch, useSelector } from "react-redux";
-import AddEditTaskModal from "../Hooks/AddEditTaskModal";
+import AddEditTaskModal from "../modals/AddEditTaskModal";
 import ElipsisMenu from "./ElipsisMenu";
 import DeleteModal from "../modals/DeleteModal";
 import boardSlice from "../redux/boardSlice";
