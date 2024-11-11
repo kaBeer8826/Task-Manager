@@ -6,33 +6,32 @@ import { useDispatch, useSelector } from "react-redux";
 import toast, { Toaster } from "react-hot-toast";
 
 function AddEditTaskModal({
-  // eslint-disable-next-line react/prop-types
   type,
+  device,
   setIsTaskModalOpen,
   setIsAddTaskModalOpen,
-  device,
-  prevColIndex = 0,
   taskIndex,
+  prevColIndex = 0,
 }) {
   const dispatch = useDispatch();
+  const [isFirstLoad, setIsFirstLoad] = useState(true);
+  const [isValid, setIsValid] = useState(true);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [isValid, setIsValid] = useState(true);
-
-  const [subtasks, setSubtasks] = useState([
-    { title: "", isCompleted: false, id: uuidv4() },
-    { title: "", isCompleted: false, id: uuidv4() },
-  ]);
-
   const board = useSelector((state) => state.boards).find(
     (board) => board.isActive
   );
+
   const columns = board.columns;
   const col = columns.find((col, index) => index === prevColIndex);
   const task = col ? col.tasks.find((task, index) => index === taskIndex) : [];
   const [status, setStatus] = useState(columns[prevColIndex].name);
   const [newColIndex, setNewColIndex] = useState(prevColIndex);
-  const [isFirstLoad, setIsFirstLoad] = useState(true);
+  const [subtasks, setSubtasks] = useState([
+    { title: "", isCompleted: false, id: uuidv4() },
+    { title: "", isCompleted: false, id: uuidv4() },
+  ]);
+
   const onChangeSubtasks = (id, newValue) => {
     setSubtasks((prevState) => {
       const newState = [...prevState];
@@ -41,27 +40,39 @@ function AddEditTaskModal({
       return newState;
     });
   };
+
   const onChangeStatus = (e) => {
     setStatus(e.target.value);
     setNewColIndex(e.target.selectedIndex);
   };
+
   const validate = () => {
     setIsValid(false);
     if (!title.trim()) {
-      toast("Enter Tile.");
       return false;
     }
     for (let i = 0; i < subtasks.length; i++) {
       if (!subtasks[i].title.trim()) {
-        toast("Enter all SubTasks.");
         return false;
       }
     }
     setIsValid(true);
     return true;
   };
+
+  if (type === "edit" && isFirstLoad) {
+    setSubtasks(
+      task.subtasks.map((subtask) => {
+        return { ...subtask, id: uuidv4() };
+      })
+    );
+    setTitle(task.title);
+    setDescription(task.description);
+    setIsFirstLoad(false);
+  }
+
   const onDelete = (id) => {
-    setSubtasks((prev) => prev.filter((element) => element.id !== id));
+    setSubtasks((prevState) => prevState.filter((el) => el.id !== id));
   };
 
   const onSubmit = (type) => {
@@ -90,16 +101,6 @@ function AddEditTaskModal({
     }
   };
 
-  if (type === "edit" && isFirstLoad) {
-    setSubtasks(
-      task.subtasks.map((subtask) => {
-        return { ...subtask, id: uuidv4() };
-      })
-    );
-    setTitle(task.title);
-    setDescription(task.description);
-    setIsFirstLoad(false);
-  }
   return (
     <div
       className={
@@ -114,7 +115,8 @@ function AddEditTaskModal({
         setIsAddTaskModalOpen(false);
       }}
     >
-      {/* modal section */}
+      {/* Modal Section */}
+
       <div
         className=" scrollbar-hide overflow-y-scroll max-h-[95vh]  my-auto  bg-white dark:bg-[#2b2c37] text-black dark:text-white font-bold
        shadow-md shadow-[#364e7e1a] max-w-md mx-auto  w-full px-8  py-8 rounded-xl"
@@ -122,6 +124,9 @@ function AddEditTaskModal({
         <h3 className=" text-lg ">
           {type === "edit" ? "Edit" : "Add New"} Task
         </h3>
+
+        {/* Task Name */}
+
         <div className="mt-8 flex flex-col space-y-1">
           <label className="  text-sm dark:text-white text-gray-500">
             Task Name
@@ -131,10 +136,11 @@ function AddEditTaskModal({
             onChange={(e) => setTitle(e.target.value)}
             id="task-name-input"
             type="text"
-            placeholder={type === "edit" ? title : "eg- making coffee"}
-            className="bg-transparent px-4 py-2 outline-none focus:border-0 rounded-md text-sm border-[0.5px] border-gray-600 focus:outline-[#635fc7] outline-1  ring-0 "
+            className=" bg-transparent  px-4 py-2 outline-none focus:border-0 rounded-md text-sm  border-[0.5px] border-gray-600 focus:outline-[#635fc7] outline-1  ring-0  "
+            placeholder=" e.g Take coffee break"
           />
         </div>
+
         {/* Description */}
         <div className="mt-8 flex flex-col space-y-1">
           <label className="  text-sm dark:text-white text-gray-500">
@@ -150,21 +156,24 @@ function AddEditTaskModal({
             a little."
           />
         </div>
+
         {/* Subtasks */}
+
         <div className="mt-8 flex flex-col space-y-3">
           <label className="  text-sm dark:text-white text-gray-500">
             Subtasks
           </label>
+
           {subtasks.map((subtask, index) => (
             <div key={index} className=" flex items-center w-full ">
               <input
+                onChange={(e) => {
+                  onChangeSubtasks(subtask.id, e.target.value);
+                }}
                 type="text"
                 value={subtask.title}
                 className=" bg-transparent outline-none focus:border-0 flex-grow px-4 py-2 rounded-md text-sm  border-[0.5px] border-gray-600 focus:outline-[#635fc7] outline-[1px]  "
                 placeholder=" e.g Take coffee break"
-                onChange={(e) => {
-                  onChangeSubtasks(subtask.id, e.target.value);
-                }}
               />
               <img
                 src={crossIcon}
@@ -175,6 +184,7 @@ function AddEditTaskModal({
               />
             </div>
           ))}
+
           <button
             className=" w-full items-center dark:text-[#635fc7] dark:bg-white  text-white bg-[#635fc7] py-2 rounded-full "
             onClick={() => {
@@ -187,6 +197,7 @@ function AddEditTaskModal({
             + Add New Subtask
           </button>
         </div>
+
         {/* current Status  */}
         <div className="mt-8 flex flex-col space-y-3">
           <label className="  text-sm dark:text-white text-gray-500">
@@ -195,13 +206,12 @@ function AddEditTaskModal({
           <select
             value={status}
             onChange={onChangeStatus}
-            className=" select-status dark:text-black flex-grow px-4 py-2 rounded-md text-sm bg-transparent focus:border-0  border-[1px] border-gray-300 focus:outline-[#635fc7] outline-none"
+            className=" select-status flex-grow px-4 py-2 rounded-md text-sm bg-transparent focus:border-0  border-[1px] border-gray-300 focus:outline-[#635fc7] outline-none"
           >
             {columns.map((column, index) => (
               <option key={index}>{column.name}</option>
             ))}
           </select>
-
           <button
             onClick={() => {
               const isValid = validate();
@@ -213,7 +223,7 @@ function AddEditTaskModal({
             }}
             className=" w-full items-center text-white bg-[#635fc7] py-2 rounded-full "
           >
-            {type === "edit" ? " save edit" : "Create task"}
+           {type === "edit" ? " save edit" : "Create task"}
           </button>
         </div>
       </div>

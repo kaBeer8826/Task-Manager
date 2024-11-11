@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-import logo from "../assets/logo-mobile.svg";
+import Logo from "../assets/logo-mobile.svg";
 import iconDown from "../assets/icon-chevron-down.svg";
 import iconUp from "../assets/icon-chevron-up.svg";
-import elipis from "../assets/icon-vertical-ellipsis.svg";
+import elipsis from "../assets/icon-vertical-ellipsis.svg";
 import HeaderDropDown from "../components/HeaderDropDown";
 import { useDispatch, useSelector } from "react-redux";
 import AddEditTaskModal from "../modals/AddEditTaskModal";
@@ -11,21 +11,25 @@ import ElipsisMenu from "./ElipsisMenu";
 import DeleteModal from "../modals/DeleteModal";
 import boardSlice from "../redux/boardSlice";
 import AddEditBoardModal from "../modals/AddEditBoardModal";
-
-function Header({ boardModalOpen, setBoardModalOpen }) {
+function Header({ setBoardModalOpen, boardModalOpen }) {
   const [openDropdown, setOpenDropdown] = useState(false);
   const [isElipsisMenuOpen, setIsElipsisMenuOpen] = useState(false);
   const [boardType, setBoardType] = useState("add");
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
-  const handleBoardModalClose = () => {
-    setBoardModalOpen(false);
-    setBoardType("add"); // Reset to default
-  };
+
   const dispatch = useDispatch();
 
+  const boards = useSelector((state) => state.boards);
+  const board = boards.find((board) => board.isActive);
+
+  const onDropdownClick = () => {
+    setOpenDropdown((state) => !state);
+    setIsElipsisMenuOpen(false);
+    setBoardType("add");
+  };
+
   const setOpenEditModal = () => {
-    setBoardType("edit");
     setBoardModalOpen(true);
     setIsElipsisMenuOpen(false);
   };
@@ -43,32 +47,19 @@ function Header({ boardModalOpen, setBoardModalOpen }) {
       setIsDeleteModalOpen(false);
     }
   };
-  const onDropdownClick = () => {
-    setOpenDropdown((state) => !state);
-    setIsElipsisMenuOpen(false);
-  };
-  const boards = useSelector((state) => state.boards);
-  const activeBaord = boards.find((board) => board.isActive);
-  if (!activeBaord && boards.length > 0) {
-    dispatch(boardSlice.actions.setBoardActive({ index: 0 })); // Added missing closing parenthesis
-  }
 
-  ///
-
-  ///
-  const board = boards.find((board) => board.isActive);
   return (
-    <div className="p-4 fixed left-0 bg-white dark:bg-[#2b2c37] z-50 right-0">
-      <div className=" flex justify-between dark:text-white items-center">
-        {/* leftside */}
+    <div className=" p-4 fixed left-0 bg-white dark:bg-[#2b2c37] z-50 right-0 ">
+      <header className=" flex justify-between dark:text-white items-center  ">
+        {/* Left Side  */}
         <div className=" flex items-center space-x-2  md:space-x-4">
-          <img src={logo} alt="logo" className="h-6 w-6 " />
-          <h3 className="md:text-4xl  hidden md:inline-block font-bold  font-sans">
+          <img src={Logo} alt=" Logo " className=" h-6 w-6" />
+          <h3 className=" md:text-4xl  hidden md:inline-block font-bold  font-sans">
             kanban
           </h3>
           <div className=" flex items-center ">
             <h3 className=" truncate max-w-[200px] md:text-2xl text-xl font-bold md:ml-20 font-sans  ">
-              {board?.name || "Boards"}
+              {board.name}
             </h3>
             <img
               src={openDropdown ? iconUp : iconDown}
@@ -78,32 +69,36 @@ function Header({ boardModalOpen, setBoardModalOpen }) {
             />
           </div>
         </div>
-        {/* righ Side */}
-        <div className="flex space-x-4 items-center md:space-x-6">
+
+        {/* Right Side */}
+
+        <div className=" flex space-x-4 items-center md:space-x-6 ">
           <button
-            className="button hidden md:block"
+            className=" button hidden md:block "
             onClick={() => {
-              setIsTaskModalOpen((prevstate) => !prevstate);
+              setIsTaskModalOpen((prevState) => !prevState);
             }}
           >
-            +Add Task
+            + Add New Task
           </button>
           <button
-            className="button py-1 px-3 md:hidden"
             onClick={() => {
-              setIsTaskModalOpen((prevstate) => !prevstate);
+              setIsTaskModalOpen((prevState) => !prevState);
             }}
+            className=" button py-1 px-3 md:hidden "
           >
             +
           </button>
+
           <img
-            src={elipis}
-            alt="elipis"
-            className=" cursor-pointer h-6"
             onClick={() => {
+              setBoardType("edit");
               setOpenDropdown(false);
               setIsElipsisMenuOpen((prevState) => !prevState);
             }}
+            src={elipsis}
+            alt="elipsis"
+            className=" cursor-pointer h-6"
           />
           {isElipsisMenuOpen && (
             <ElipsisMenu
@@ -113,20 +108,14 @@ function Header({ boardModalOpen, setBoardModalOpen }) {
             />
           )}
         </div>
+
         {openDropdown && (
           <HeaderDropDown
             setOpenDropdown={setOpenDropdown}
             setBoardModalOpen={setBoardModalOpen}
-            setBoardType={setBoardType}
           />
         )}
-      </div>
-      {boardModalOpen && (
-        <AddEditBoardModal
-          type={boardType}
-          setBoardModalOpen={handleBoardModalClose}
-        />
-      )}
+      </header>
       {isTaskModalOpen && (
         <AddEditTaskModal
           setIsAddTaskModalOpen={setIsTaskModalOpen}
@@ -135,6 +124,13 @@ function Header({ boardModalOpen, setBoardModalOpen }) {
         />
       )}
 
+      {boardModalOpen === true && (
+        <AddEditBoardModal
+          setBoardType={setBoardType}
+          type={boardType}
+          setBoardModalOpen={setBoardModalOpen}
+        />
+      )}
       {isDeleteModalOpen && (
         <DeleteModal
           setIsDeleteModalOpen={setIsDeleteModalOpen}

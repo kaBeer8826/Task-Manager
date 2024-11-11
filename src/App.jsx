@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Header from "./components/Header";
-import Center from "./components/Center";
+import Home from "./components/Home";
 import { useDispatch, useSelector } from "react-redux";
 import boardSlice from "./redux/boardSlice";
 import EmptyBoard from "./components/EmptyBoard";
@@ -20,12 +20,13 @@ function App() {
             boardModalOpen={boardModalOpen}
             setBoardModalOpen={setBoardModalOpen}
           />
-          <Center 
-          boardModalOpen={boardModalOpen}
-          setBoardModalOpen={setBoardModalOpen}/>
+          <Home
+            boardModalOpen={boardModalOpen}
+            setBoardModalOpen={setBoardModalOpen}
+          />
         </>
       ) : (
-        <EmptyBoard  type='add'/>
+        <EmptyBoard type="add" />
       )}
     </div>
   );

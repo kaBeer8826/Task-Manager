@@ -4,10 +4,9 @@ import boardSlice from "../redux/boardSlice";
 import { v4 as uuidv4 } from "uuid";
 import { useDispatch, useSelector } from "react-redux";
 
-function AddEditBoardModal({ setBoardModalOpen, type }) {
-  console.log(type);
+function AddEditBoardModal({ setBoardModalOpen, type , }) {
   const dispatch = useDispatch();
-  // const [isFirstLoad, setIsFirstLoad] = useState(true);
+  const [isFirstLoad, setIsFirstLoad] = useState(true);
   const [name, setName] = useState("");
   const [newColumns, setNewColumns] = useState([
     { name: "Todo", tasks: [], id: uuidv4() },
@@ -18,22 +17,22 @@ function AddEditBoardModal({ setBoardModalOpen, type }) {
     (board) => board.isActive
   );
 
-  useEffect(() => {
-    if (type === "edit" && board) {
-      setNewColumns(
-        board.columns.map((col) => {
-          return { ...col, id: uuidv4() };
-        })
-      );
-      setName(board.name);
-    }
-  }, [type, board]);
+  if (type === "edit" && isFirstLoad) {
+    setNewColumns(
+      board.columns.map((col) => {
+        return { ...col, id: uuidv4() };
+      })
+    );
+    setName(board.name);
+    setIsFirstLoad(false);
+  }
+
   const validate = () => {
     setIsValid(false);
     if (!name.trim()) {
       return false;
     }
-    for (let i = 0; i < newColumns.length; i++) {
+    for (let i = 0 ; i < newColumns.length ; i++) {
       if (!newColumns[i].name.trim()) {
         return false;
       }
@@ -147,8 +146,7 @@ function AddEditBoardModal({ setBoardModalOpen, type }) {
           </div>
         </div>
       </div>
-
-      {console.log("component render ")}
+      {console.log(newColumns, type)}
     </div>
   );
 }
