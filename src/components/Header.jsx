@@ -1,22 +1,16 @@
 import { useState } from "react";
-import PropTypes from "prop-types";
+
 import logo from "../assets/logo-mobile.svg";
 import iconDown from "../assets/icon-chevron-down.svg";
 import iconUp from "../assets/icon-chevron-up.svg";
 import elipis from "../assets/icon-vertical-ellipsis.svg";
 import HeaderDropDown from "../components/HeaderDropDown";
-import AddEditBoardModal from "../modals/AddEditBoardModal";
 import { useDispatch, useSelector } from "react-redux";
 import AddEditTaskModal from "../modals/AddEditTaskModal";
 import ElipsisMenu from "./ElipsisMenu";
 import DeleteModal from "../modals/DeleteModal";
 import boardSlice from "../redux/boardSlice";
-// Removed unused import: AddEditBoardModal from "../modals/AddEditBoardModal";
-
-Header.propTypes = {
-  boardModalOpen: PropTypes.bool.isRequired,
-  setBoardModalOpen: PropTypes.func.isRequired,
-};
+import AddEditBoardModal from "../modals/AddEditBoardModal";
 
 function Header({ boardModalOpen, setBoardModalOpen }) {
   const [openDropdown, setOpenDropdown] = useState(false);
@@ -24,10 +18,14 @@ function Header({ boardModalOpen, setBoardModalOpen }) {
   const [boardType, setBoardType] = useState("add");
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
-
+  const handleBoardModalClose = () => {
+    setBoardModalOpen(false);
+    setBoardType("add"); // Reset to default
+  };
   const dispatch = useDispatch();
 
   const setOpenEditModal = () => {
+    setBoardType("edit");
     setBoardModalOpen(true);
     setIsElipsisMenuOpen(false);
   };
@@ -45,11 +43,19 @@ function Header({ boardModalOpen, setBoardModalOpen }) {
       setIsDeleteModalOpen(false);
     }
   };
+  const onDropdownClick = () => {
+    setOpenDropdown((state) => !state);
+    setIsElipsisMenuOpen(false);
+  };
   const boards = useSelector((state) => state.boards);
   const activeBaord = boards.find((board) => board.isActive);
   if (!activeBaord && boards.length > 0) {
     dispatch(boardSlice.actions.setBoardActive({ index: 0 })); // Added missing closing parenthesis
   }
+
+  ///
+
+  ///
   const board = boards.find((board) => board.isActive);
   return (
     <div className="p-4 fixed left-0 bg-white dark:bg-[#2b2c37] z-50 right-0">
@@ -68,7 +74,7 @@ function Header({ boardModalOpen, setBoardModalOpen }) {
               src={openDropdown ? iconUp : iconDown}
               alt=" dropdown icon"
               className=" w-3 ml-2 md:hidden"
-              onClick={() => setOpenDropdown((state) => !state)}
+              onClick={onDropdownClick}
             />
           </div>
         </div>
@@ -96,23 +102,29 @@ function Header({ boardModalOpen, setBoardModalOpen }) {
             className=" cursor-pointer h-6"
             onClick={() => {
               setOpenDropdown(false);
-              setBoardType("edit");
               setIsElipsisMenuOpen((prevState) => !prevState);
             }}
           />
+          {isElipsisMenuOpen && (
+            <ElipsisMenu
+              type="Boards"
+              setOpenEditModal={setOpenEditModal}
+              setOpenDeleteModal={setOpenDeleteModal}
+            />
+          )}
         </div>
         {openDropdown && (
           <HeaderDropDown
             setOpenDropdown={setOpenDropdown}
             setBoardModalOpen={setBoardModalOpen}
+            setBoardType={setBoardType}
           />
         )}
       </div>
       {boardModalOpen && (
         <AddEditBoardModal
-          setBoardType={setBoardType}
           type={boardType}
-          setBoardModalOpen={setBoardModalOpen}
+          setBoardModalOpen={handleBoardModalClose}
         />
       )}
       {isTaskModalOpen && (
@@ -120,14 +132,6 @@ function Header({ boardModalOpen, setBoardModalOpen }) {
           setIsAddTaskModalOpen={setIsTaskModalOpen}
           type="add"
           device="mobile"
-        />
-      )}
-
-      {isElipsisMenuOpen && (
-        <ElipsisMenu
-          type="Boards"
-          setOpenEditModal={setOpenEditModal}
-          setOpenDeleteModal={setOpenDeleteModal}
         />
       )}
 

@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import toast, { Toaster } from "react-hot-toast";
 
 function AddEditTaskModal({
+  // eslint-disable-next-line react/prop-types
   type,
   setIsTaskModalOpen,
   setIsAddTaskModalOpen,

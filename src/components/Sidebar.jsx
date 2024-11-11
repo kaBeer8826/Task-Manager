@@ -11,12 +11,8 @@ import showSidebarIcon from "../assets/icon-show-sidebar.svg";
 import hideSidebarIcon from "../assets/icon-hide-sidebar.svg";
 import AddEditBoardModal from "../modals/AddEditBoardModal";
 
-function Sidebar({
-  setBoardModalOpen,
-  BoardModalOpen,
-  isSideBarOpen,
-  setIsSideBarOpen,
-}) {
+function Sidebar({ isSideBarOpen, setIsSideBarOpen }) {
+  const [boardModalOpen, setBoardModalOpen] = useState(false);
   const dispatch = useDispatch();
   const [colorTheme, setTheme] = useDarkMode();
   const [darkSide, setDarkSide] = useState(
@@ -122,7 +118,7 @@ function Sidebar({
         </div>
       </div>
 
-      {BoardModalOpen && (
+      {boardModalOpen && (
         <AddEditBoardModal type="add" setBoardModalOpen={setBoardModalOpen} />
       )}
     </div>

@@ -5,18 +5,14 @@ import darkIcon from "../assets/icon-dark-theme.svg";
 import lightIcon from "../assets/icon-light-theme.svg";
 import { Switch } from "@headlessui/react";
 import useDarkMode from "../Hooks/useDarkMode";
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 import boardSlice from "../redux/boardSlice";
-function HeaderDropDown({ setOpenDropdown, setBoardModalOpen }) {
-  HeaderDropDown.propTypes = {
-    setOpenDropdown: PropTypes.func.isRequired,
-    setBoardModalOpen: PropTypes.func.isRequired,
-  };
-  const dispatch = useDispatch()
+import AddEditBoardModal from "../modals/AddEditBoardModal";
+function HeaderDropDown({ setOpenDropdown, setBoardModalOpen,setBoardType }) {
+  const dispatch = useDispatch();
   const boards = useSelector((state) => state.boards);
   const [colorTheme, setTheme] = useDarkMode();
   const [darkSide, setDarkSide] = useState(colorTheme === "light");
-
   const toggleDarkMode = (checked) => {
     setTheme(colorTheme);
     setDarkSide(checked);
@@ -54,11 +50,14 @@ function HeaderDropDown({ setOpenDropdown, setBoardModalOpen }) {
           </div>
         ))}
 
-        <div onClick={()=>{
-            setOpenDropdown(false)
-            setBoardModalOpen(true)
-        }} 
-        className=" flex items-baseline space-x-2  text-[#635fc7] px-5 py-4">
+        <div
+          onClick={() => {
+            setOpenDropdown(false);
+            setBoardModalOpen(true);
+            setBoardType('add')
+          }}
+          className=" flex items-baseline space-x-2  text-[#635fc7] px-5 py-4"
+        >
           <img src={boardIcon} className="   filter-white  h-4 " />
           <p className=" text-lg font-bold  ">Create New Board </p>
         </div>
